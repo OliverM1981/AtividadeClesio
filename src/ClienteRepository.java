@@ -1,69 +1,92 @@
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
- * Repositório para gerenciamento de operações CRUD de clientes.
+ * Classe de repositório que gerencia o armazenamento e manipulação de clientes.
  */
 public class ClienteRepository {
-    private List<Cliente> clientes = new ArrayList<>();
+    private ArrayList<Cliente> clientes;  // Armazena os clientes cadastrados
+    private int idCounter = 1;  // Contador para geração automática de IDs
 
     /**
-     * Adiciona um novo cliente ao repositório.
+     * Construtor da classe ClienteRepository.
+     */
+    public ClienteRepository() {
+        this.clientes = new ArrayList<>();
+    }
+
+    /**
+     * Adiciona um novo cliente ao repositório com ID gerado automaticamente.
      *
      * @param cliente Cliente a ser adicionado.
      */
     public void adicionarCliente(Cliente cliente) {
+        cliente.setId(idCounter++); // Atribui um novo ID e incrementa o contador
         clientes.add(cliente);
+        System.out.println("Cliente adicionado com sucesso! ID: " + cliente.getId());
     }
 
     /**
-     * Lista todos os clientes cadastrados.
-     *
-     * @return Lista de clientes.
+     * Lista todos os clientes cadastrados no repositório.
      */
-    public List<Cliente> listarClientes() {
-        return new ArrayList<>(clientes);
+    public void listarClientes() {
+        if (clientes.isEmpty()) {
+            System.out.println("Nenhum cliente cadastrado.");
+        } else {
+            System.out.println("Lista de Clientes:");
+            for (Cliente cliente : clientes) {
+                System.out.println(cliente);
+            }
+        }
+    }
+
+    /**
+     * Atualiza as informações de um cliente com base no ID.
+     *
+     * @param id ID do cliente a ser atualizado.
+     * @param novoCliente Cliente com os dados atualizados.
+     * @return true se o cliente foi atualizado, false caso contrário.
+     */
+    public boolean atualizarCliente(int id, Cliente novoCliente) {
+        Optional<Cliente> clienteOptional = buscarCliente(id);
+        if (clienteOptional.isPresent()) {
+            Cliente cliente = clienteOptional.get();
+            cliente.setNome(novoCliente.getNome());
+            cliente.setEmail(novoCliente.getEmail());
+            cliente.setTelefone(novoCliente.getTelefone());
+            System.out.println("Cliente com ID " + id + " atualizado com sucesso.");
+            return true;
+        } else {
+            System.out.println("Cliente com ID " + id + " não encontrado.");
+            return false;
+        }
+    }
+
+    /**
+     * Remove um cliente do repositório com base no ID.
+     *
+     * @param id ID do cliente a ser removido.
+     * @return true se o cliente foi removido, false caso contrário.
+     */
+    public boolean removerCliente(int id) {
+        Optional<Cliente> clienteOptional = buscarCliente(id);
+        if (clienteOptional.isPresent()) {
+            clientes.remove(clienteOptional.get());
+            System.out.println("Cliente com ID " + id + " removido com sucesso.");
+            return true;
+        } else {
+            System.out.println("Cliente com ID " + id + " não encontrado.");
+            return false;
+        }
     }
 
     /**
      * Busca um cliente pelo ID.
      *
      * @param id ID do cliente a ser buscado.
-     * @return Cliente encontrado, ou Optional vazio se não encontrado.
+     * @return Optional contendo o cliente, se encontrado.
      */
-    public Optional<Cliente> buscarClientePorId(int id) {
+    public Optional<Cliente> buscarCliente(int id) {
         return clientes.stream().filter(cliente -> cliente.getId() == id).findFirst();
-    }
-
-    /**
-     * Atualiza as informações de um cliente.
-     *
-     * @param id       ID do cliente a ser atualizado.
-     * @param nome     Novo nome do cliente.
-     * @param email    Novo e-mail do cliente.
-     * @param telefone Novo telefone do cliente.
-     * @return true se o cliente foi atualizado, false se o cliente não foi encontrado.
-     */
-    public boolean atualizarCliente(int id, String nome, String email, String telefone) {
-        Optional<Cliente> clienteOpt = buscarClientePorId(id);
-        if (clienteOpt.isPresent()) {
-            Cliente cliente = clienteOpt.get();
-            cliente.setNome(nome);
-            cliente.setEmail(email);
-            cliente.setTelefone(telefone);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Remove um cliente do repositório.
-     *
-     * @param id ID do cliente a ser removido.
-     * @return true se o cliente foi removido, false se o cliente não foi encontrado.
-     */
-    public boolean removerCliente(int id) {
-        return clientes.removeIf(cliente -> cliente.getId() == id);
     }
 }
